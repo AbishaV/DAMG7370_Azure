@@ -5,14 +5,7 @@
 			{
 				"name": "Parquet_2_Snowflake",
 				"type": "Copy",
-				"dependsOn": [
-					{
-						"activity": "TSV_2_Parquet",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "0.00:30:00",
 					"retry": 1,
@@ -65,7 +58,7 @@
 						"type": "DelimitedTextSource",
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
-							"recursive": true,
+							"recursive": false,
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
