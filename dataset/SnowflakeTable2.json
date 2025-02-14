@@ -2,8 +2,16 @@
 	"name": "SnowflakeTable2",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "Snowflake_linserv",
+			"referenceName": "Snowflake2_linserv",
 			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"schemaName": {
+				"type": "string"
+			},
+			"tableName": {
+				"type": "string"
+			}
 		},
 		"annotations": [],
 		"type": "SnowflakeV2Table",
