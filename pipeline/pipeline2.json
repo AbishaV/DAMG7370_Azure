@@ -60,11 +60,21 @@
 				"outputs": [
 					{
 						"referenceName": "SnowflakeTable2",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"schemaName": "NYPD_Arrest_Data_SCHEMA",
+							"tableName": "NYPD_ARREST_DATA_STAGE"
+						}
 					}
 				]
 			}
 		],
+		"variables": {
+			"myFileName": {
+				"type": "String",
+				"defaultValue": "NYPD_Arrest_Data_Cleansed.parquet"
+			}
+		},
 		"annotations": []
 	}
 }
