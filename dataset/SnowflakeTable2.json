@@ -7,10 +7,12 @@
 		},
 		"parameters": {
 			"schemaName": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "NYPD_ARREST_DATA_SCHEMA"
 			},
 			"tableName": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "NYPD_ARREST_DATA_STAGE"
 			}
 		},
 		"annotations": [],
