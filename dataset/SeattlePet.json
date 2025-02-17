@@ -9,10 +9,6 @@
 			"FileName": {
 				"type": "string",
 				"defaultValue": "Seattle_Pet_Licenses_20250217.tsv"
-			},
-			"FileDelimiter": {
-				"type": "string",
-				"defaultValue": "Tab (\\t)"
 			}
 		},
 		"annotations": [],
@@ -26,10 +22,7 @@
 				},
 				"fileSystem": "bronze"
 			},
-			"columnDelimiter": {
-				"value": "@dataset().FileDelimiter",
-				"type": "Expression"
-			},
+			"columnDelimiter": "\t",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
