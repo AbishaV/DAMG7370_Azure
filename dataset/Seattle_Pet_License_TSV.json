@@ -5,6 +5,16 @@
 			"referenceName": "AzureDataLake_linkserv",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"FileName": {
+				"type": "string",
+				"defaultValue": "text.txt"
+			},
+			"FileDelimiter": {
+				"type": "string",
+				"defaultValue": "|"
+			}
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
