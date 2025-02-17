@@ -12,7 +12,7 @@
 			},
 			"FileDelimiter": {
 				"type": "string",
-				"defaultValue": "|"
+				"defaultValue": "\\t"
 			}
 		},
 		"annotations": [],
