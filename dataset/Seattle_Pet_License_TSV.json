@@ -8,7 +8,7 @@
 		"parameters": {
 			"FileName": {
 				"type": "string",
-				"defaultValue": "text.txt"
+				"defaultValue": "Seattle_Pet_Licenses_W3.tsv"
 			},
 			"FileDelimiter": {
 				"type": "string",
@@ -20,10 +20,16 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "Seattle_Pet_Licenses_W3.tsv",
+				"fileName": {
+					"value": "@dataset().FileName",
+					"type": "Expression"
+				},
 				"fileSystem": "bronze"
 			},
-			"columnDelimiter": "\t",
+			"columnDelimiter": {
+				"value": "@dataset().FileDelimiter",
+				"type": "Expression"
+			},
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
