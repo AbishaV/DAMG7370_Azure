@@ -16,16 +16,37 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "TransposeColumns"
+				}
+			],
 			"scriptLines": [
+				"parameters{",
+				"     JOB_ID as string (uuid())",
+				"}",
 				"source(output(",
-				"          {License Issue Date     License Number     Animal's Name     Species     Primary Breed     Secondary Breed     ZIP Code} as string",
+				"          {License Issue Date} as string,",
+				"          {License Number} as string,",
+				"          {Animal's Name} as string,",
+				"          Species as string,",
+				"          {Primary Breed} as string,",
+				"          {Secondary Breed} as string,",
+				"          {ZIP Code} as integer",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> readTSVfile",
 				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> source2"
+				"     validateSchema: false) ~> source2",
+				"readTSVfile derive(LIC_ISSUE_DATE = toDate({License Issue Date}, 'MMMM dd yyyy'),",
+				"          SEC_BREED = iifNull({Secondary Breed}, 'Unknown'),",
+				"          ZIP_CODE = lpad(toString({ZIP Code}),5,'0'),",
+				"          SPECIES = upper(Species),",
+				"          LIC_NUM = toInteger(translate({License Number}, 'S', '')),",
+				"          ANIMAL_NAME = translate({Animal's Name}, '()[]', ''),",
+				"          JOB_ID = ERROR_FUNCTION(''),",
+				"          LOAD_DT = currentDate()) ~> TransposeColumns"
 			]
 		}
 	}
