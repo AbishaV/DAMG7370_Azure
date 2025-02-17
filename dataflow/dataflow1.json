@@ -10,15 +10,24 @@
 						"type": "DatasetReference"
 					},
 					"name": "readTSVfile"
-				},
-				{
-					"name": "source2"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SF_SeattlePetLicense",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "TransposeColumns"
+				},
+				{
+					"name": "pickRequiredColumn",
+					"description": "Picking the required column created in the previous step"
 				}
 			],
 			"scriptLines": [
@@ -37,16 +46,57 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> readTSVfile",
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> source2",
 				"readTSVfile derive(LIC_ISSUE_DATE = toDate({License Issue Date}, 'MMMM dd yyyy'),",
 				"          SEC_BREED = iifNull({Secondary Breed}, 'Unknown'),",
 				"          ZIP_CODE = lpad(toString({ZIP Code}),5,'0'),",
 				"          SPECIES = upper(Species),",
 				"          LIC_NUM = toInteger(translate({License Number}, 'S', '')),",
 				"          ANIMAL_NAME = translate({Animal's Name}, '()[]', ''),",
-				"          JOB_ID = ERROR_FUNCTION(''),",
-				"          LOAD_DT = currentDate()) ~> TransposeColumns"
+				"          JOB_ID = $JOB_ID,",
+				"          LOAD_DT = currentDate()) ~> TransposeColumns",
+				"TransposeColumns select(mapColumn(",
+				"          PRIMARY_BREED = {Primary Breed},",
+				"          LIC_ISSUE_DATE,",
+				"          SEC_BREED,",
+				"          ZIP_CODE,",
+				"          SPECIES = TransposeColumns@SPECIES,",
+				"          LIC_NUM,",
+				"          ANIMAL_NAME,",
+				"          JOB_ID,",
+				"          LOAD_DT",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> pickRequiredColumn",
+				"pickRequiredColumn sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          LICENSE_ISSUE_DATE as string,",
+				"          LICENSE_NUMBER as string,",
+				"          ANIMAL_NAME as string,",
+				"          SPECIES as string,",
+				"          PRIMARY_BREED as string,",
+				"          SECONDARY_BREED as string,",
+				"          ZIP_CODE as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          LICENSE_ISSUE_DATE = LIC_ISSUE_DATE,",
+				"          LICENSE_NUMBER = LIC_NUM,",
+				"          ANIMAL_NAME,",
+				"          SPECIES,",
+				"          PRIMARY_BREED,",
+				"          SECONDARY_BREED = SEC_BREED,",
+				"          ZIP_CODE,",
+				"          DI_JOB_ID = JOB_ID,",
+				"          DI_LOAD_DT = LOAD_DT",
+				"     )) ~> sink1"
 			]
 		}
 	}
