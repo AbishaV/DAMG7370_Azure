@@ -18,7 +18,7 @@
 						"referenceName": "SF_SeattlePetLicense",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "S"
 				}
 			],
 			"transformations": [
@@ -96,7 +96,7 @@
 				"          ZIP_CODE,",
 				"          DI_JOB_ID = JOB_ID,",
 				"          DI_LOAD_DT = LOAD_DT",
-				"     )) ~> sink1"
+				"     )) ~> S"
 			]
 		}
 	}
