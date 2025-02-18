@@ -5,6 +5,8 @@
 			{
 				"name": "SeattlePetLicenseCleansed",
 				"type": "ExecuteDataFlow",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -41,6 +43,8 @@
 				"name": "LoadBreedDim",
 				"description": "Loading Breed Dim with data",
 				"type": "ExecuteDataFlow",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "SeattlePetLicenseCleansed",
@@ -79,6 +83,8 @@
 				"name": "LoadLocationDim",
 				"description": "Loading Location Dim",
 				"type": "ExecuteDataFlow",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "LoadBreedDim",
