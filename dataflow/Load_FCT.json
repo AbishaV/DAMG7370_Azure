@@ -1,0 +1,196 @@
+{
+	"name": "Load_FCT",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "SF_SeattlePetLicense",
+						"type": "DatasetReference"
+					},
+					"name": "sourceStage"
+				},
+				{
+					"dataset": {
+						"referenceName": "EDW_Location_dim",
+						"type": "DatasetReference"
+					},
+					"name": "srcLocationDim"
+				},
+				{
+					"dataset": {
+						"referenceName": "EDW_BreedDim",
+						"type": "DatasetReference"
+					},
+					"name": "srcBreedDim"
+				},
+				{
+					"dataset": {
+						"referenceName": "EDW_Date_Dim",
+						"type": "DatasetReference"
+					},
+					"name": "srcDateDim"
+				},
+				{
+					"dataset": {
+						"referenceName": "EDW_Seattle_Pet_Lic_FCT",
+						"type": "DatasetReference"
+					},
+					"name": "FCTMaxID"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "EDW_Seattle_Pet_Lic_FCT",
+						"type": "DatasetReference"
+					},
+					"name": "sinkFCT"
+				}
+			],
+			"transformations": [
+				{
+					"name": "joinLocationDim"
+				},
+				{
+					"name": "joinBreedDim"
+				},
+				{
+					"name": "joinDateDim"
+				},
+				{
+					"name": "joinMaxID"
+				},
+				{
+					"name": "aggregateForLicCount"
+				},
+				{
+					"name": "surrogateKey"
+				},
+				{
+					"name": "ColumnForPKLICSK"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          LICENSE_ISSUE_DATE as string,",
+				"          LICENSE_NUMBER as string,",
+				"          ANIMAL_NAME as string,",
+				"          SPECIES as string,",
+				"          PRIMARY_BREED as string,",
+				"          SECONDARY_BREED as string,",
+				"          ZIP_CODE as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> sourceStage",
+				"source(output(",
+				"          LOCATION_SK as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          STATE_ABBR as string,",
+				"          ZIPCODE as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> srcLocationDim",
+				"source(output(",
+				"          BREED_SK as string,",
+				"          BREED_DK as string,",
+				"          SPECIES_NAME as string,",
+				"          PRIMARY_SPECIES_NAME as string,",
+				"          SECONDARY_BREED_NAME as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> srcBreedDim",
+				"source(output(",
+				"          DT as string,",
+				"          ABRV_DAY_NAME as string,",
+				"          MONTH_NAME as string,",
+				"          START_DAY_OF_MONTH as string,",
+				"          END_DAY_OF_MONTH as string,",
+				"          QUARTER_NUM as string,",
+				"          DAY_OF_WEEK as string,",
+				"          IS_WEEKEND as string,",
+				"          YEAR_NUM as string,",
+				"          MONTH_NUM as string,",
+				"          DAY_NUM as string,",
+				"          DATE_DIM_SK as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> srcDateDim",
+				"source(output(",
+				"          PET_LIC_SK as decimal(10,0)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     query: 'SELECT NVL (MAX(LIC_SK),0) as PET_LIC_SK FROM DAMG7370_EDW.PET_LIC_FCT',",
+				"     format: 'query') ~> FCTMaxID",
+				"sourceStage, srcLocationDim join(ZIP_CODE == ZIPCODE,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinLocationDim",
+				"joinLocationDim, srcBreedDim join(PRIMARY_BREED == PRIMARY_SPECIES_NAME",
+				"     && SECONDARY_BREED == SECONDARY_BREED_NAME",
+				"     && SPECIES == SPECIES_NAME,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinBreedDim",
+				"joinBreedDim, srcDateDim join(LICENSE_ISSUE_DATE == DT,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinDateDim",
+				"joinDateDim, FCTMaxID join(1==1,",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinMaxID",
+				"joinMaxID aggregate(groupBy(DT,",
+				"          LOCATION_SK,",
+				"          BREED_SK,",
+				"          DATE_DIM_SK),",
+				"     CNT = count(LICENSE_ISSUE_DATE)) ~> aggregateForLicCount",
+				"aggregateForLicCount keyGenerate(output(rownum as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey",
+				"surrogateKey derive(PK_LIC_SK = ERROR_FUNCTION('')) ~> ColumnForPKLICSK",
+				"ColumnForPKLICSK sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          LIC_SK as string,",
+				"          DATE_SK as string,",
+				"          LOCATION_SK as string,",
+				"          BREED_SK as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          LIC_SK = PET_LIC_SK,",
+				"          DATE_SK = DT,",
+				"          LOCATION_SK,",
+				"          BREED_SK,",
+				"          DI_JOB_ID = sourceStage@DI_JOB_ID,",
+				"          DI_LOAD_DT = sourceStage@DI_LOAD_DT",
+				"     )) ~> sinkFCT"
+			]
+		}
+	}
+}
