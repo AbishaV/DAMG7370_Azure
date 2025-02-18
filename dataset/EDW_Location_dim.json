@@ -1,0 +1,47 @@
+{
+	"name": "EDW_Location_dim",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Snowflake_linserv",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SnowflakeV2Table",
+		"schema": [
+			{
+				"name": "LOCATION_SK",
+				"type": "NUMBER",
+				"precision": 10,
+				"scale": 0
+			},
+			{
+				"name": "CITY",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "STATE",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "STATE_ABBR",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "ZIPCODE",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "DI_JOB_ID",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "DI_LOAD_DT",
+				"type": "DATE"
+			}
+		],
+		"typeProperties": {
+			"schema": "DAMG7370_EDW",
+			"table": "LOCATION_DIM"
+		}
+	}
+}
